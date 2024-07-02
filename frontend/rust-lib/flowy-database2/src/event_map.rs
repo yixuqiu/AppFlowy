@@ -37,7 +37,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetRow, get_row_handler)
         .event(DatabaseEvent::GetRowMeta, get_row_meta_handler)
         .event(DatabaseEvent::UpdateRowMeta, update_row_meta_handler)
-        .event(DatabaseEvent::DeleteRow, delete_row_handler)
+        .event(DatabaseEvent::DeleteRows, delete_rows_handler)
         .event(DatabaseEvent::DuplicateRow, duplicate_row_handler)
         .event(DatabaseEvent::MoveRow, move_row_handler)
         // Cell
@@ -91,6 +91,7 @@ pub fn init(database_manager: Weak<DatabaseManager>) -> AFPlugin {
         .event(DatabaseEvent::GetRelatedDatabaseRows, get_related_database_rows_handler)
         // AI
         .event(DatabaseEvent::SummarizeRow, summarize_row_handler)
+        .event(DatabaseEvent::TranslateRow, translate_row_handler)
 }
 
 /// [DatabaseEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
@@ -223,8 +224,8 @@ pub enum DatabaseEvent {
   #[event(input = "RowIdPB", output = "OptionalRowPB")]
   GetRow = 51,
 
-  #[event(input = "RowIdPB")]
-  DeleteRow = 52,
+  #[event(input = "RepeatedRowIdPB")]
+  DeleteRows = 52,
 
   #[event(input = "RowIdPB")]
   DuplicateRow = 53,
@@ -364,7 +365,7 @@ pub enum DatabaseEvent {
   UpdateRelationCell = 171,
 
   /// Get the names of the linked rows in a relation cell.
-  #[event(input = "RepeatedRowIdPB", output = "RepeatedRelatedRowDataPB")]
+  #[event(input = "GetRelatedRowDataPB", output = "RepeatedRelatedRowDataPB")]
   GetRelatedRowDatas = 172,
 
   /// Get the names of all the rows in a related database.
@@ -373,4 +374,7 @@ pub enum DatabaseEvent {
 
   #[event(input = "SummaryRowPB")]
   SummarizeRow = 174,
+
+  #[event(input = "TranslateRowPB")]
+  TranslateRow = 175,
 }

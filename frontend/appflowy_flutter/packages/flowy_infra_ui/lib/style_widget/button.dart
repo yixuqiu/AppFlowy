@@ -107,7 +107,7 @@ class FlowyButton extends StatelessWidget {
     }
 
     if (rightIcon != null) {
-      children.add(const HSpace(6));
+      children.add(HSpace(iconPadding));
       // No need to define the size of rightIcon. Just use its intrinsic width
       children.add(rightIcon!);
     }
@@ -128,7 +128,7 @@ class FlowyButton extends StatelessWidget {
                 (Platform.isIOS || Platform.isAndroid)
             ? BoxDecoration(
                 border: Border.all(
-                color: Theme.of(context).colorScheme.surfaceVariant,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 width: 1.0,
               ))
             : null);
@@ -196,7 +196,11 @@ class FlowyTextButton extends StatelessWidget {
       children.add(heading!);
       children.add(const HSpace(8));
     }
-    children.add(Text(text, overflow: overflow, textAlign: TextAlign.center));
+    children.add(Text(
+      text,
+      overflow: overflow,
+      textAlign: TextAlign.center,
+    ));
 
     Widget child = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -210,12 +214,12 @@ class FlowyTextButton extends StatelessWidget {
         onPressed: onPressed ?? () {},
         focusNode: FocusNode(skipTraversal: onPressed == null),
         style: ButtonStyle(
-          overlayColor: const MaterialStatePropertyAll(Colors.transparent),
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           splashFactory: NoSplash.splashFactory,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          padding: MaterialStateProperty.all(padding),
-          elevation: MaterialStateProperty.all(0),
-          shape: MaterialStateProperty.all(
+          padding: WidgetStateProperty.all(padding),
+          elevation: WidgetStateProperty.all(0),
+          shape: WidgetStateProperty.all(
             RoundedRectangleBorder(
               side: BorderSide(
                 color: isDangerous
@@ -225,17 +229,18 @@ class FlowyTextButton extends StatelessWidget {
               borderRadius: radius ?? Corners.s6Border,
             ),
           ),
-          textStyle: MaterialStateProperty.all(
+          textStyle: WidgetStateProperty.all(
             TextStyle(
               fontWeight: fontWeight ?? FontWeight.w500,
               fontSize: fontSize,
               decoration: decoration,
               fontFamily: fontFamily,
+              height: 1.1,
             ),
           ),
-          backgroundColor: MaterialStateProperty.resolveWith(
+          backgroundColor: WidgetStateProperty.resolveWith(
             (states) {
-              if (states.contains(MaterialState.hovered)) {
+              if (states.contains(WidgetState.hovered)) {
                 return hoverColor ??
                     (isDangerous
                         ? Theme.of(context).colorScheme.error
@@ -248,9 +253,9 @@ class FlowyTextButton extends StatelessWidget {
                       : Theme.of(context).colorScheme.secondaryContainer);
             },
           ),
-          foregroundColor: MaterialStateProperty.resolveWith(
+          foregroundColor: WidgetStateProperty.resolveWith(
             (states) {
-              if (states.contains(MaterialState.hovered)) {
+              if (states.contains(WidgetState.hovered)) {
                 return fontHoverColor ??
                     (fontColor ?? Theme.of(context).colorScheme.onSurface);
               }

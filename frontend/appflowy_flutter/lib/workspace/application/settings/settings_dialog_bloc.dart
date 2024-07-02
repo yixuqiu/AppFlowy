@@ -11,14 +11,15 @@ part 'settings_dialog_bloc.freezed.dart';
 enum SettingsPage {
   // NEW
   account,
+  workspace,
+  manageData,
+  shortcuts,
+  ai,
+  plan,
+  billing,
   // OLD
-  appearance,
-  language,
-  files,
-  // user,
   notifications,
   cloud,
-  shortcuts,
   member,
   featureFlags,
 }
@@ -83,14 +84,12 @@ class SettingsDialogEvent with _$SettingsDialogEvent {
 class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
     required UserProfilePB userProfile,
-    required FlowyResult<void, String> successOrFailure,
     required SettingsPage page,
   }) = _SettingsDialogState;
 
   factory SettingsDialogState.initial(UserProfilePB userProfile) =>
       SettingsDialogState(
         userProfile: userProfile,
-        successOrFailure: FlowyResult.success(null),
         page: SettingsPage.account,
       );
 }

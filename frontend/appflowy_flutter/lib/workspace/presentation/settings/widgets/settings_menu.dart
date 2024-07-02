@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/shared/af_role_pb_extension.dart';
 import 'package:appflowy/shared/feature_flags.dart';
 import 'package:appflowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:appflowy/workspace/presentation/settings/widgets/settings_menu_element.dart';
@@ -16,11 +17,13 @@ class SettingsMenu extends StatelessWidget {
     required this.changeSelectedPage,
     required this.currentPage,
     required this.userProfile,
+    this.member,
   });
 
   final Function changeSelectedPage;
   final SettingsPage currentPage;
   final UserProfilePB userProfile;
+  final WorkspaceMemberPB? member;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,7 @@ class SettingsMenu extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 8) +
                 const EdgeInsets.only(left: 8, right: 4),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(8),
                 bottomLeft: Radius.circular(8),
@@ -55,24 +58,27 @@ class SettingsMenu extends StatelessWidget {
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
-                    page: SettingsPage.appearance,
+                    page: SettingsPage.workspace,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_appearance.tr(),
-                    icon: const Icon(Icons.brightness_4),
+                    label: LocaleKeys.settings_workspacePage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_workplace_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
+                  if (FeatureFlag.membersSettings.isOn &&
+                      userProfile.authenticator ==
+                          AuthenticatorPB.AppFlowyCloud)
+                    SettingsMenuElement(
+                      page: SettingsPage.member,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_appearance_members_label.tr(),
+                      icon: const Icon(Icons.people),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
                   SettingsMenuElement(
-                    page: SettingsPage.language,
+                    page: SettingsPage.manageData,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_language.tr(),
-                    icon: const Icon(Icons.translate),
-                    changeSelectedPage: changeSelectedPage,
-                  ),
-                  SettingsMenuElement(
-                    page: SettingsPage.files,
-                    selectedPage: currentPage,
-                    label: LocaleKeys.settings_menu_files.tr(),
-                    icon: const Icon(Icons.file_present_outlined),
+                    label: LocaleKeys.settings_manageDataPage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_data_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
                   SettingsMenuElement(
@@ -92,20 +98,40 @@ class SettingsMenu extends StatelessWidget {
                   SettingsMenuElement(
                     page: SettingsPage.shortcuts,
                     selectedPage: currentPage,
-                    label: LocaleKeys.settings_shortcuts_shortcutsLabel.tr(),
-                    icon: const Icon(Icons.cut),
+                    label: LocaleKeys.settings_shortcutsPage_menuLabel.tr(),
+                    icon: const FlowySvg(FlowySvgs.settings_shortcuts_m),
                     changeSelectedPage: changeSelectedPage,
                   ),
-                  if (FeatureFlag.membersSettings.isOn &&
+                  SettingsMenuElement(
+                    page: SettingsPage.ai,
+                    selectedPage: currentPage,
+                    label: LocaleKeys.settings_aiPage_menuLabel.tr(),
+                    icon: const FlowySvg(
+                      FlowySvgs.ai_summary_generate_s,
+                      size: Size.square(24),
+                    ),
+                    changeSelectedPage: changeSelectedPage,
+                  ),
+                  if (FeatureFlag.planBilling.isOn &&
                       userProfile.authenticator ==
-                          AuthenticatorPB.AppFlowyCloud)
+                          AuthenticatorPB.AppFlowyCloud &&
+                      member != null &&
+                      member!.role.isOwner) ...[
                     SettingsMenuElement(
-                      page: SettingsPage.member,
+                      page: SettingsPage.plan,
                       selectedPage: currentPage,
-                      label: LocaleKeys.settings_appearance_members_label.tr(),
-                      icon: const Icon(Icons.people),
+                      label: LocaleKeys.settings_planPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_plan_m),
                       changeSelectedPage: changeSelectedPage,
                     ),
+                    SettingsMenuElement(
+                      page: SettingsPage.billing,
+                      selectedPage: currentPage,
+                      label: LocaleKeys.settings_billingPage_menuLabel.tr(),
+                      icon: const FlowySvg(FlowySvgs.settings_billing_m),
+                      changeSelectedPage: changeSelectedPage,
+                    ),
+                  ],
                   if (kDebugMode)
                     SettingsMenuElement(
                       // no need to translate this page

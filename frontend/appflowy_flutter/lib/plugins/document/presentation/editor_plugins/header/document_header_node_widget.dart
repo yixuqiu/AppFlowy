@@ -28,8 +28,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:string_validator/string_validator.dart';
 
-import 'cover_editor.dart';
-
 const double kCoverHeight = 250.0;
 const double kIconHeight = 60.0;
 const double kToolbarHeight = 40.0; // with padding to the top
@@ -93,6 +91,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
 
   String viewIcon = '';
   PageStyleCover? cover;
+  late ViewPB view;
   late final ViewListener viewListener;
 
   @override
@@ -101,6 +100,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     final value = widget.view.icon.value;
     viewIcon = value.isNotEmpty ? value : icon ?? '';
     cover = widget.view.cover;
+    view = widget.view;
     widget.node.addListener(_reload);
     viewListener = ViewListener(
       viewId: widget.view.id,
@@ -109,6 +109,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
           setState(() {
             viewIcon = p0.icon.value;
             cover = p0.cover;
+            view = p0;
           });
         },
       );
@@ -139,7 +140,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
         ),
         if (hasCover)
           DocumentCover(
-            view: widget.view,
+            view: view,
             editorState: widget.editorState,
             node: widget.node,
             coverType: coverType,
@@ -206,7 +207,7 @@ class _DocumentCoverWidgetState extends State<DocumentCoverWidget> {
     // compatible with version > 0.5.5.
     EditorMigration.migrateCoverIfNeeded(
       widget.view,
-      widget.editorState,
+      attributes,
       overwrite: true,
     );
   }
@@ -296,13 +297,14 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
           leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(
             cover: PlatformExtension.isDesktopOrWeb
-                ? (CoverType.asset, builtInAssetImages.first)
+                ? (CoverType.asset, '1')
                 : (CoverType.color, '0xffe8e0ff'),
           ),
           useIntrinsicWidth: true,
-          leftIcon: const FlowySvg(FlowySvgs.image_s),
+          leftIcon: const FlowySvg(FlowySvgs.add_cover_s),
           text: FlowyText.small(
             LocaleKeys.document_plugins_cover_addCover.tr(),
+            color: Theme.of(context).hintColor,
           ),
         ),
       );
@@ -311,28 +313,24 @@ class _DocumentHeaderToolbarState extends State<DocumentHeaderToolbar> {
     if (widget.hasIcon) {
       children.add(
         FlowyButton(
-          leftIconSize: const Size.square(18),
           onTap: () => widget.onIconOrCoverChanged(icon: ""),
           useIntrinsicWidth: true,
-          leftIcon: const Icon(
-            Icons.emoji_emotions_outlined,
-            size: 18,
-          ),
+          leftIcon: const FlowySvg(FlowySvgs.add_icon_s),
+          iconPadding: 4.0,
           text: FlowyText.small(
             LocaleKeys.document_plugins_cover_removeIcon.tr(),
+            color: Theme.of(context).hintColor,
           ),
         ),
       );
     } else {
       Widget child = FlowyButton(
-        leftIconSize: const Size.square(18),
         useIntrinsicWidth: true,
-        leftIcon: const Icon(
-          Icons.emoji_emotions_outlined,
-          size: 18,
-        ),
+        leftIcon: const FlowySvg(FlowySvgs.add_icon_s),
+        iconPadding: 4.0,
         text: FlowyText.small(
           LocaleKeys.document_plugins_cover_addIcon.tr(),
+          color: Theme.of(context).hintColor,
         ),
         onTap: PlatformExtension.isDesktop
             ? null
@@ -643,7 +641,7 @@ class DocumentCoverState extends State<DocumentCover> {
         details = await saveImageToLocalStorage(details);
       } else {
         // else we should save the image to cloud storage
-        (details, _) = await saveImageToCloudStorage(details);
+        (details, _) = await saveImageToCloudStorage(details, widget.view.id);
       }
     }
     widget.onChangeCover(type, details);

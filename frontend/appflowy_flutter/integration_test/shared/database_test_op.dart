@@ -130,12 +130,12 @@ extension AppFlowyDatabaseTest on WidgetTester {
     await openPage('v020', layout: ViewLayoutPB.Grid);
   }
 
-  Future<void> hoverOnFirstRowOfGrid() async {
+  Future<void> hoverOnFirstRowOfGrid([Future<void> Function()? onHover]) async {
     final findRow = find.byType(GridRow);
     expect(findRow, findsWidgets);
 
     final firstRow = findRow.first;
-    await hoverOnWidget(firstRow);
+    await hoverOnWidget(firstRow, onHover: onHover);
   }
 
   Future<void> editCell({
@@ -661,10 +661,13 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   Future<void> changeFieldTypeOfFieldWithName(
     String name,
-    FieldType type,
-  ) async {
+    FieldType type, {
+    ViewLayoutPB layout = ViewLayoutPB.Grid,
+  }) async {
     await tapGridFieldWithName(name);
-    await tapEditFieldButton();
+    if (layout == ViewLayoutPB.Grid) {
+      await tapEditFieldButton();
+    }
 
     await tapSwitchFieldTypeButton();
     await selectFieldType(type);
@@ -873,16 +876,24 @@ extension AppFlowyDatabaseTest on WidgetTester {
   }
 
   Future<void> tapRowMenuButtonInGrid() async {
+    expect(find.byType(RowMenuButton), findsOneWidget);
     await tapButton(find.byType(RowMenuButton));
   }
 
   /// Should call [tapRowMenuButtonInGrid] first.
   Future<void> tapDeleteOnRowMenu() async {
+    expect(find.text(LocaleKeys.grid_row_delete.tr()), findsOneWidget);
     await tapButtonWithName(LocaleKeys.grid_row_delete.tr());
   }
 
-  Future<void> createField(FieldType fieldType, String name) async {
-    await scrollToRight(find.byType(GridPage));
+  Future<void> createField(
+    FieldType fieldType,
+    String name, {
+    ViewLayoutPB layout = ViewLayoutPB.Grid,
+  }) async {
+    if (layout == ViewLayoutPB.Grid) {
+      await scrollToRight(find.byType(GridPage));
+    }
     await tapNewPropertyButton();
     await renameField(name);
     await tapSwitchFieldTypeButton();
@@ -1463,7 +1474,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 
   void assertCurrentDatabaseTagIs(DatabaseLayoutPB layout) => switch (layout) {
         DatabaseLayoutPB.Board =>
-          expect(find.byType(BoardPage), findsOneWidget),
+          expect(find.byType(DesktopBoardPage), findsOneWidget),
         DatabaseLayoutPB.Calendar =>
           expect(find.byType(CalendarPage), findsOneWidget),
         DatabaseLayoutPB.Grid => expect(find.byType(GridPage), findsOneWidget),
@@ -1521,7 +1532,7 @@ extension AppFlowyDatabaseTest on WidgetTester {
 }
 
 Finder finderForDatabaseLayoutType(DatabaseLayoutPB layout) => switch (layout) {
-      DatabaseLayoutPB.Board => find.byType(BoardPage),
+      DatabaseLayoutPB.Board => find.byType(DesktopBoardPage),
       DatabaseLayoutPB.Calendar => find.byType(CalendarPage),
       DatabaseLayoutPB.Grid => find.byType(GridPage),
       _ => throw Exception('Unknown database layout type: $layout'),

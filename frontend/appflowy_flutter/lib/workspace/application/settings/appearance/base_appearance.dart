@@ -11,18 +11,15 @@ import 'package:flutter/material.dart';
 // Desktop: Based on the OS
 const defaultFontFamily = '';
 
-// the Poppins font is embedded in the app, so we can use it without GoogleFonts
-// TODO(Lucas): after releasing version 0.5.6, remove it.
-const fallbackFontFamily = 'Poppins';
 const builtInCodeFontFamily = 'RobotoMono';
 
 abstract class BaseAppearance {
   final white = const Color(0xFFFFFFFF);
 
-  final Set<MaterialState> scrollbarInteractiveStates = <MaterialState>{
-    MaterialState.pressed,
-    MaterialState.hovered,
-    MaterialState.dragged,
+  final Set<WidgetState> scrollbarInteractiveStates = <WidgetState>{
+    WidgetState.pressed,
+    WidgetState.hovered,
+    WidgetState.dragged,
   };
 
   TextStyle getFontStyle({
@@ -33,7 +30,7 @@ abstract class BaseAppearance {
     double? letterSpacing,
     double? lineHeight,
   }) {
-    fontSize = fontSize ?? FontSizes.s12;
+    fontSize = fontSize ?? FontSizes.s14;
     fontWeight = fontWeight ??
         (PlatformExtension.isDesktopOrWeb ? FontWeight.w500 : FontWeight.w400);
     letterSpacing = fontSize * (letterSpacing ?? 0.005);
@@ -47,7 +44,7 @@ abstract class BaseAppearance {
       height: lineHeight,
     );
 
-    if (fontFamily == defaultFontFamily || fontFamily == fallbackFontFamily) {
+    if (fontFamily == defaultFontFamily) {
       return textStyle;
     }
 

@@ -45,6 +45,8 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -76,6 +78,8 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -102,6 +106,8 @@ impl EventIntegrationTest {
       set_as_current: true,
       index: None,
       section: None,
+      view_id: None,
+      extra: None,
     };
     EventBuilder::new(self.clone())
       .event(FolderEvent::CreateView)
@@ -215,6 +221,14 @@ impl EventIntegrationTest {
       .await;
   }
 
+  pub async fn translate_row(&self, data: TranslateRowPB) {
+    EventBuilder::new(self.clone())
+      .event(DatabaseEvent::TranslateRow)
+      .payload(data)
+      .async_send()
+      .await;
+  }
+
   pub async fn create_row(
     &self,
     view_id: &str,
@@ -236,11 +250,10 @@ impl EventIntegrationTest {
 
   pub async fn delete_row(&self, view_id: &str, row_id: &str) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
-      .event(DatabaseEvent::DeleteRow)
-      .payload(RowIdPB {
+      .event(DatabaseEvent::DeleteRows)
+      .payload(RepeatedRowIdPB {
         view_id: view_id.to_string(),
-        row_id: row_id.to_string(),
-        group_id: None,
+        row_ids: vec![row_id.to_string()],
       })
       .async_send()
       .await
@@ -437,12 +450,18 @@ impl EventIntegrationTest {
       .error()
   }
 
-  pub async fn set_group_by_field(&self, view_id: &str, field_id: &str) -> Option<FlowyError> {
+  pub async fn set_group_by_field(
+    &self,
+    view_id: &str,
+    field_id: &str,
+    setting_content: Vec<u8>,
+  ) -> Option<FlowyError> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::SetGroupByField)
       .payload(GroupByFieldPayloadPB {
         field_id: field_id.to_string(),
         view_id: view_id.to_string(),
+        setting_content,
       })
       .async_send()
       .await
@@ -523,7 +542,7 @@ impl EventIntegrationTest {
   ) -> Vec<RelatedRowDataPB> {
     EventBuilder::new(self.clone())
       .event(DatabaseEvent::GetRelatedRowDatas)
-      .payload(RepeatedRowIdPB {
+      .payload(GetRelatedRowDataPB {
         database_id,
         row_ids,
       })
@@ -642,6 +661,12 @@ impl<'a> TestRowBuilder<'a> {
       .cell_build
       .insert_checklist_cell(&checklist_field.id, options);
     checklist_field.id.clone()
+  }
+
+  pub fn insert_time_cell(&mut self, time: i64) -> String {
+    let time_field = self.field_with_type(&FieldType::Time);
+    self.cell_build.insert_number_cell(&time_field.id, time);
+    time_field.id.clone()
   }
 
   pub fn field_with_type(&self, field_type: &FieldType) -> Field {

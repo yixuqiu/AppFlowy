@@ -1,41 +1,35 @@
 import { CollabOrigin, CollabType, YDoc } from '@/application/collab.type';
-import { getFolderStorage } from '@/application/services/js-services/storage/folder';
+import { getCollab } from '@/application/services/js-services/cache';
+import { StrategyType } from '@/application/services/js-services/cache/types';
+import { fetchCollab } from '@/application/services/js-services/fetch';
 import { FolderService } from '@/application/services/services.type';
-import { APIService } from 'src/application/services/js-services/wasm';
-import { applyDocument } from 'src/application/ydoc/apply';
 
 export class JSFolderService implements FolderService {
+  private loaded: Set<string> = new Set();
+
   constructor() {
     //
   }
 
-  fetchFolder(workspaceId: string) {
-    return APIService.getCollab(workspaceId, workspaceId, CollabType.Folder);
-  }
-
   async openWorkspace(workspaceId: string): Promise<YDoc> {
-    const { doc, localExist } = await getFolderStorage(workspaceId);
-    const asyncApply = async () => {
-      const res = await this.fetchFolder(workspaceId);
+    const isLoaded = this.loaded.has(workspaceId);
+    const doc = await getCollab(
+      () => {
+        return fetchCollab(workspaceId, workspaceId, CollabType.Folder);
+      },
+      {
+        collabId: workspaceId,
+        collabType: CollabType.Folder,
+      },
+      isLoaded ? StrategyType.CACHE_FIRST : StrategyType.CACHE_AND_NETWORK
+    );
 
-      applyDocument(doc, res.state);
-    };
-
-    // If the document exists locally, apply the state asynchronously,
-    // otherwise, apply the state synchronously
-    if (localExist) {
-      void asyncApply();
-    } else {
-      await asyncApply();
-    }
-
+    if (!isLoaded) this.loaded.add(workspaceId);
     const handleUpdate = (update: Uint8Array, origin: CollabOrigin) => {
-      if (origin === CollabOrigin.Remote) {
-        return;
+      if (origin === CollabOrigin.LocalSync) {
+        // Send the update to the server
+        console.log('update', update);
       }
-
-      // Send the update to the server
-      console.log('update', update);
     };
 
     doc.on('update', handleUpdate);

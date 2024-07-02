@@ -92,12 +92,11 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   void initState() {
+    super.initState();
     _calendarState = GlobalKey<MonthViewState>();
     _calendarBloc = CalendarBloc(
       databaseController: widget.databaseController,
     )..add(const CalendarEvent.initial());
-
-    super.initState();
   }
 
   @override
@@ -380,13 +379,7 @@ class UnscheduledEventsButton extends StatefulWidget {
 }
 
 class _UnscheduledEventsButtonState extends State<UnscheduledEventsButton> {
-  late final PopoverController _popoverController;
-
-  @override
-  void initState() {
-    super.initState();
-    _popoverController = PopoverController();
-  }
+  final PopoverController _popoverController = PopoverController();
 
   @override
   Widget build(BuildContext context) {

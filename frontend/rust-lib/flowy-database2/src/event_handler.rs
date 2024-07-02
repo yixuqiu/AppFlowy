@@ -385,14 +385,19 @@ pub(crate) async fn update_row_meta_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn delete_row_handler(
-  data: AFPluginData<RowIdPB>,
+pub(crate) async fn delete_rows_handler(
+  data: AFPluginData<RepeatedRowIdPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> Result<(), FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: RowIdParams = data.into_inner().try_into()?;
+  let params: RepeatedRowIdPB = data.into_inner();
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
-  database_editor.delete_row(&params.row_id).await;
+  let row_ids = params
+    .row_ids
+    .into_iter()
+    .map(RowId::from)
+    .collect::<Vec<_>>();
+  database_editor.delete_rows(&row_ids).await;
   Ok(())
 }
 
@@ -651,7 +656,7 @@ pub(crate) async fn set_group_by_field_handler(
   let params: GroupByFieldParams = data.into_inner().try_into()?;
   let database_editor = manager.get_database_with_view_id(&params.view_id).await?;
   database_editor
-    .set_group_by_field(&params.view_id, &params.field_id)
+    .set_group_by_field(&params.view_id, &params.field_id, params.setting_content)
     .await?;
   Ok(())
 }
@@ -1062,11 +1067,11 @@ pub(crate) async fn update_relation_cell_handler(
 }
 
 pub(crate) async fn get_related_row_datas_handler(
-  data: AFPluginData<RepeatedRowIdPB>,
+  data: AFPluginData<GetRelatedRowDataPB>,
   manager: AFPluginState<Weak<DatabaseManager>>,
 ) -> DataResult<RepeatedRelatedRowDataPB, FlowyError> {
   let manager = upgrade_manager(manager)?;
-  let params: RepeatedRowIdPB = data.into_inner();
+  let params: GetRelatedRowDataPB = data.into_inner();
   let database_editor = manager.get_database(&params.database_id).await?;
   let row_datas = database_editor
     .get_related_rows(Some(&params.row_ids))
@@ -1096,6 +1101,19 @@ pub(crate) async fn summarize_row_handler(
   let row_id = RowId::from(data.row_id);
   manager
     .summarize_row(data.view_id, row_id, data.field_id)
+    .await?;
+  Ok(())
+}
+
+pub(crate) async fn translate_row_handler(
+  data: AFPluginData<TranslateRowPB>,
+  manager: AFPluginState<Weak<DatabaseManager>>,
+) -> Result<(), FlowyError> {
+  let manager = upgrade_manager(manager)?;
+  let data = data.try_into_inner()?;
+  let row_id = RowId::from(data.row_id);
+  manager
+    .translate_row(data.view_id, row_id, data.field_id)
     .await?;
   Ok(())
 }

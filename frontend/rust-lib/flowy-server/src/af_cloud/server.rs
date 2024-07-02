@@ -1,17 +1,21 @@
+use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
 use anyhow::Error;
 use client_api::collab_sync::ServerCollabMessage;
+use client_api::entity::ai_dto::AIModel;
 use client_api::entity::UserMessage;
 use client_api::notify::{TokenState, TokenStateReceiver};
 use client_api::ws::{
   ConnectState, WSClient, WSClientConfig, WSConnectStateReceiver, WebSocketChannel,
 };
 use client_api::{Client, ClientConfiguration};
-use flowy_storage::ObjectStorageService;
+use flowy_chat_pub::cloud::ChatCloudService;
+use flowy_search_pub::cloud::SearchCloudService;
 use rand::Rng;
+use semver::Version;
 use tokio::select;
 use tokio::sync::{watch, Mutex};
 use tokio_stream::wrappers::WatchStream;
@@ -25,15 +29,19 @@ use flowy_document_pub::cloud::DocumentCloudService;
 use flowy_error::{ErrorCode, FlowyError};
 use flowy_folder_pub::cloud::FolderCloudService;
 use flowy_server_pub::af_cloud_config::AFCloudConfiguration;
+use flowy_storage_pub::cloud::StorageCloudService;
 use flowy_user_pub::cloud::{UserCloudService, UserUpdate};
 use flowy_user_pub::entities::UserTokenState;
 use lib_dispatch::prelude::af_spawn;
 
 use crate::af_cloud::impls::{
-  AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl, AFCloudFileStorageServiceImpl,
-  AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
+  AFCloudChatCloudServiceImpl, AFCloudDatabaseCloudServiceImpl, AFCloudDocumentCloudServiceImpl,
+  AFCloudFileStorageServiceImpl, AFCloudFolderCloudServiceImpl, AFCloudUserAuthServiceImpl,
 };
+
 use crate::AppFlowyServer;
+
+use super::impls::AFCloudSearchCloudServiceImpl;
 
 pub(crate) type AFCloudClient = Client;
 
@@ -53,7 +61,7 @@ impl AppFlowyCloudServer {
     config: AFCloudConfiguration,
     enable_sync: bool,
     mut device_id: String,
-    client_version: &str,
+    client_version: Version,
     user: Arc<dyn ServerUser>,
   ) -> Self {
     // The device id can't be empty, so we generate a new one if it is.
@@ -70,7 +78,7 @@ impl AppFlowyCloudServer {
       ClientConfiguration::default()
         .with_compression_buffer_size(10240)
         .with_compression_quality(8),
-      client_version,
+      &client_version.to_string(),
     );
     let token_state_rx = api_client.subscribe_token_state();
     let enable_sync = Arc::new(AtomicBool::new(enable_sync));
@@ -118,6 +126,11 @@ impl AppFlowyServer for AppFlowyCloudServer {
       .client
       .restore_token(token)
       .map_err(|err| Error::new(FlowyError::unauthorized().with_context(err)))
+  }
+
+  fn set_ai_model(&self, ai_model: &str) -> Result<(), Error> {
+    self.client.set_ai_model(AIModel::from_str(ai_model)?);
+    Ok(())
   }
 
   fn subscribe_token_state(&self) -> Option<WatchStream<UserTokenState>> {
@@ -213,6 +226,13 @@ impl AppFlowyServer for AppFlowyCloudServer {
     })
   }
 
+  fn chat_service(&self) -> Arc<dyn ChatCloudService> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+    Arc::new(AFCloudChatCloudServiceImpl { inner: server })
+  }
+
   fn subscribe_ws_state(&self) -> Option<WSConnectStateReceiver> {
     Some(self.ws_client.subscribe_connect_state())
   }
@@ -239,11 +259,19 @@ impl AppFlowyServer for AppFlowyCloudServer {
     Ok(channel.map(|c| (c, connect_state_recv, self.ws_client.is_connected())))
   }
 
-  fn file_storage(&self) -> Option<Arc<dyn ObjectStorageService>> {
+  fn file_storage(&self) -> Option<Arc<dyn StorageCloudService>> {
     let client = AFServerImpl {
       client: self.get_client(),
     };
     Some(Arc::new(AFCloudFileStorageServiceImpl::new(client)))
+  }
+
+  fn search_service(&self) -> Option<Arc<dyn SearchCloudService>> {
+    let server = AFServerImpl {
+      client: self.get_client(),
+    };
+
+    Some(Arc::new(AFCloudSearchCloudServiceImpl { inner: server }))
   }
 }
 
