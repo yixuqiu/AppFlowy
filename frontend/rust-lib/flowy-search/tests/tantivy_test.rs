@@ -1,7 +1,7 @@
 use tantivy::collector::TopDocs;
 use tantivy::query::QueryParser;
 use tantivy::schema::*;
-use tantivy::{doc, DocAddress, Index, Score};
+use tantivy::{DocAddress, Index, Score, doc};
 
 #[test]
 fn search_folder_test() {
@@ -13,9 +13,8 @@ fn search_folder_test() {
   // Indexing documents
   let index = Index::create_from_tempdir(schema.clone()).unwrap();
 
-  // Here we use a buffer of 100MB that will be split
   // between indexing threads.
-  let mut index_writer = index.writer(100_000_000).unwrap();
+  let mut index_writer = index.writer(15_000_000).unwrap();
 
   // Let's index one documents!
   index_writer
@@ -47,7 +46,7 @@ fn search_folder_test() {
 
   for (_score, doc_address) in top_docs {
     // Retrieve the actual content of documents given its `doc_address`.
-    let retrieved_doc = searcher.doc(doc_address).unwrap();
-    println!("{}", schema.to_json(&retrieved_doc));
+    let retrieved_doc: TantivyDocument = searcher.doc(doc_address).unwrap();
+    println!("{}", retrieved_doc.to_json(&schema));
   }
 }

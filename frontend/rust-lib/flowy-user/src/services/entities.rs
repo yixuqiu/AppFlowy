@@ -63,6 +63,15 @@ impl UserPaths {
   pub(crate) fn user_data_dir(&self, uid: i64) -> String {
     format!("{}/{}", self.root, uid)
   }
+
+  pub fn tanvity_index_path(&self, uid: i64) -> PathBuf {
+    PathBuf::from(self.user_data_dir(uid)).join("indexes")
+  }
+
+  /// The root directory of the application
+  pub(crate) fn root(&self) -> &str {
+    &self.root
+  }
 }
 
 impl UserDBPath for UserPaths {

@@ -32,6 +32,18 @@ enum FeatureFlag {
   // used for the search feature
   search,
 
+  // used for controlling whether to show plan+billing options in settings
+  planBilling,
+
+  // used for space design
+  spaceDesign,
+
+  // used for the inline sub-page mention
+  inlineSubPageMention,
+
+  // used for the shared section
+  sharedSection,
+
   // used for ignore the conflicted feature flag
   unknown;
 
@@ -85,12 +97,18 @@ enum FeatureFlag {
 
   bool get isOn {
     if ([
+      FeatureFlag.planBilling,
+      // release this feature in version 0.6.1
+      FeatureFlag.spaceDesign,
+      // release this feature in version 0.5.9
+      FeatureFlag.search,
       // release this feature in version 0.5.6
       FeatureFlag.collaborativeWorkspace,
       FeatureFlag.membersSettings,
       // release this feature in version 0.5.4
       FeatureFlag.syncDatabase,
       FeatureFlag.syncDocument,
+      FeatureFlag.inlineSubPageMention,
     ].contains(this)) {
       return true;
     }
@@ -100,14 +118,18 @@ enum FeatureFlag {
     }
 
     switch (this) {
-      case FeatureFlag.collaborativeWorkspace:
-      case FeatureFlag.membersSettings:
+      case FeatureFlag.planBilling:
       case FeatureFlag.search:
-      case FeatureFlag.unknown:
-        return false;
       case FeatureFlag.syncDocument:
       case FeatureFlag.syncDatabase:
+      case FeatureFlag.spaceDesign:
+      case FeatureFlag.inlineSubPageMention:
+      case FeatureFlag.collaborativeWorkspace:
+      case FeatureFlag.membersSettings:
         return true;
+      case FeatureFlag.sharedSection:
+      case FeatureFlag.unknown:
+        return false;
     }
   }
 
@@ -123,6 +145,14 @@ enum FeatureFlag {
         return 'if it\'s on, the collaborators will show in the database';
       case FeatureFlag.search:
         return 'if it\'s on, the command palette and search button will be available';
+      case FeatureFlag.planBilling:
+        return 'if it\'s on, plan and billing pages will be available in Settings';
+      case FeatureFlag.spaceDesign:
+        return 'if it\'s on, the space design feature will be available';
+      case FeatureFlag.inlineSubPageMention:
+        return 'if it\'s on, the inline sub-page mention feature will be available';
+      case FeatureFlag.sharedSection:
+        return 'if it\'s on, the shared section will be available';
       case FeatureFlag.unknown:
         return '';
     }

@@ -107,14 +107,14 @@
   "questionBubble": {
     "shortcuts": "Genvägar",
     "whatsNew": "Vad nytt?",
-    "help": "Hjälp & Support",
     "markdown": "Prissänkning",
     "debug": {
       "name": "Felsökningsinfo",
       "success": "Kopierade felsökningsinfo till urklipp!",
       "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
     },
-    "feedback": "Återkoppling"
+    "feedback": "Återkoppling",
+    "help": "Hjälp & Support"
   },
   "menuAppHeader": {
     "addPageTooltip": "Lägg till en underliggande sida",
@@ -247,11 +247,6 @@
       "cloudServerType": "Molnserver",
       "cloudServerTypeTip": "Observera att det kan logga ut ditt nuvarande konto efter att ha bytt molnserver",
       "cloudLocal": "Lokal",
-      "cloudSupabase": "Supabase",
-      "cloudSupabaseUrl": "Supabase URL",
-      "cloudSupabaseUrlCanNotBeEmpty": "Webbadressen för supabase kan inte vara tom",
-      "cloudSupabaseAnonKey": "Supabase anonym nyckel",
-      "cloudSupabaseAnonKeyCanNotBeEmpty": "Anon-nyckeln kan inte vara tom",
       "appFlowyCloudUrlCanNotBeEmpty": "Molnets webbadress får inte vara tom",
       "clickToCopy": "Klicka för att kopiera",
       "selfHostStart": "Om du inte har en server, vänligen se",
@@ -272,14 +267,13 @@
       "historicalUserList": "Användarinloggningshistorik",
       "historicalUserListTooltip": "Den här listan visar dina anonyma konton. Du kan klicka på ett konto för att se dess detaljer. Anonyma konton skapas genom att klicka på knappen \"Kom igång\".",
       "openHistoricalUser": "Klicka för att öppna det anonyma kontot",
-      "customPathPrompt": "Att lagra AppFlowy-datamappen i en molnsynkroniserad mapp som Google Drive kan innebära risker. Om databasen i den här mappen nås eller ändras från flera platser samtidigt, kan det resultera i synkroniseringskonflikter och potentiell datakorruption",
-      "importAppFlowyData": "Importera data från extern AppFlowy-mapp",
+      "customPathPrompt": "Att lagra @:appName-datamappen i en molnsynkroniserad mapp som Google Drive kan innebära risker. Om databasen i den här mappen nås eller ändras från flera platser samtidigt, kan det resultera i synkroniseringskonflikter och potentiell datakorruption",
+      "importAppFlowyData": "Importera data från extern @:appName-mapp",
       "importingAppFlowyDataTip": "Dataimport pågår. Stäng inte appen",
-      "importAppFlowyDataDescription": "Kopiera data från en extern AppFlowy-datamapp och importera den till den aktuella AppFlowy-datamappen",
-      "importSuccess": "AppFlowy-datamappen har importerats",
-      "importFailed": "Det gick inte att importera AppFlowy-datamappen",
-      "importGuide": "För ytterligare information, snälla se det refererade dokumentet",
-      "supabaseSetting": "Supabase-inställning"
+      "importAppFlowyDataDescription": "Kopiera data från en extern @:appName-datamapp och importera den till den aktuella @:appName-datamappen",
+      "importSuccess": "@:appName-datamappen har importerats",
+      "importFailed": "Det gick inte att importera @:appName-datamappen",
+      "importGuide": "För ytterligare information, snälla se det refererade dokumentet"
     },
     "appearance": {
       "fontFamily": {
@@ -294,7 +288,7 @@
       },
       "themeUpload": {
         "button": "Ladda upp",
-        "description": "Ladda upp ditt eget AppFlowy-tema med knappen nedan.",
+        "description": "Ladda upp ditt eget @:appName-tema med knappen nedan.",
         "loading": "Vänta medan vi validerar och laddar upp ditt tema...",
         "uploadSuccess": "Ditt tema laddades upp",
         "deletionFailure": "Det gick inte att ta bort temat. Försök att radera det manuellt.",
@@ -311,7 +305,7 @@
       "defaultLocation": "Läs filer och datalagringsplats",
       "exportData": "Exportera dina data",
       "doubleTapToCopy": "Dubbeltryck för att kopiera sökvägen",
-      "restoreLocation": "Återställ till AppFlowy standardsökväg",
+      "restoreLocation": "Återställ till @:appName standardsökväg",
       "customizeLocation": "Öppna en annan mapp",
       "restartApp": "Starta om appen för att ändringarna ska träda i kraft.",
       "exportDatabase": "Exportera databas",
@@ -323,10 +317,10 @@
       "defineWhereYourDataIsStored": "Definiera var din data lagras",
       "open": "Öppen",
       "openFolder": "Öppna en befintlig mapp",
-      "openFolderDesc": "Läs och skriv det till din befintliga AppFlowy-mapp",
+      "openFolderDesc": "Läs och skriv det till din befintliga @:appName-mapp",
       "folderHintText": "mappnamn",
       "location": "Skapar en ny mapp",
-      "locationDesc": "Välj ett namn för din AppFlowy-datamapp",
+      "locationDesc": "Välj ett namn för din @:appName-datamapp",
       "browser": "Bläddra",
       "create": "Skapa",
       "set": "Uppsättning",
@@ -337,7 +331,7 @@
       "change": "Förändra",
       "openLocationTooltips": "Öppna en annan datakatalog",
       "openCurrentDataFolder": "Öppna aktuell datakatalog",
-      "recoverLocationTooltips": "Återställ till AppFlowys standarddatakatalog",
+      "recoverLocationTooltips": "Återställ till @:appNames standarddatakatalog",
       "exportFileSuccess": "Exporterade filen framgångsrikt!",
       "exportFileFail": "Export av fil misslyckades!",
       "export": "Exportera"
@@ -345,7 +339,7 @@
     "user": {
       "name": "namn",
       "selectAnIcon": "Välj en ikon",
-      "pleaseInputYourOpenAIKey": "vänligen ange din OpenAI-nyckel"
+      "pleaseInputYourOpenAIKey": "vänligen ange din AI-nyckel"
     }
   },
   "grid": {
@@ -501,23 +495,23 @@
       "referencedBoard": "Refererad tavla",
       "referencedGrid": "Refererade tabell",
       "referencedCalendar": "Refererad kalender",
-      "autoGeneratorMenuItemName": "OpenAI Writer",
-      "autoGeneratorTitleName": "OpenAI: Be AI skriva vad som helst...",
+      "autoGeneratorMenuItemName": "AI Writer",
+      "autoGeneratorTitleName": "AI: Be AI skriva vad som helst...",
       "autoGeneratorLearnMore": "Läs mer",
       "autoGeneratorGenerate": "Generera",
-      "autoGeneratorHintText": "Fråga OpenAI...",
-      "autoGeneratorCantGetOpenAIKey": "Kan inte hämta OpenAI-nyckeln",
+      "autoGeneratorHintText": "Fråga AI...",
+      "autoGeneratorCantGetOpenAIKey": "Kan inte hämta AI-nyckeln",
       "autoGeneratorRewrite": "Skriva om",
       "smartEdit": "AI-assistenter",
-      "openAI": "OpenAI",
+      "aI": "AI",
       "smartEditFixSpelling": "Fixa stavningen",
       "warning": "⚠️ AI-svar kan vara felaktiga eller vilseledande.",
       "smartEditSummarize": "Sammanfatta",
       "smartEditImproveWriting": "Förbättra skrivandet",
       "smartEditMakeLonger": "Gör längre",
-      "smartEditCouldNotFetchResult": "Det gick inte att hämta resultatet från OpenAI",
-      "smartEditCouldNotFetchKey": "Det gick inte att hämta OpenAI-nyckeln",
-      "smartEditDisabled": "Anslut OpenAI i Inställningar",
+      "smartEditCouldNotFetchResult": "Det gick inte att hämta resultatet från AI",
+      "smartEditCouldNotFetchKey": "Det gick inte att hämta AI-nyckeln",
+      "smartEditDisabled": "Anslut AI i Inställningar",
       "discardResponse": "Vill du kassera AI-svaren?",
       "createInlineMathEquation": "Skapa ekvation",
       "toggleList": "Växla lista",
@@ -647,7 +641,7 @@
     "referencedCalendarPrefix": "Utsikt över"
   },
   "errorDialog": {
-    "title": "AppFlowy-fel",
+    "title": "@:appName-fel",
     "howToFixFallback": "Vi ber om ursäkt för besväret! Skapa en felrapport på vår GitHub-sida som beskriver ditt fel.",
     "github": "Visa på GitHub"
   },

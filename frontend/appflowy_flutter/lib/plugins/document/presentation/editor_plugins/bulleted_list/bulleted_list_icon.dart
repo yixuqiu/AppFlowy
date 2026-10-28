@@ -1,10 +1,9 @@
 import 'package:appflowy/generated/flowy_svgs.g.dart';
-import 'package:appflowy/mobile/application/page_style/document_page_style_bloc.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BulletedListIcon extends StatelessWidget {
+class BulletedListIcon extends StatefulWidget {
   const BulletedListIcon({
     super.key,
     required this.node,
@@ -18,9 +17,44 @@ class BulletedListIcon extends StatelessWidget {
     FlowySvgs.bulleted_list_icon_3_s,
   ];
 
+  @override
+  State<BulletedListIcon> createState() => _BulletedListIconState();
+}
+
+class _BulletedListIconState extends State<BulletedListIcon> {
+  int index = 0;
+  double size = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final textStyle =
+        context.read<EditorState>().editorStyle.textStyleConfiguration;
+    final fontSize = textStyle.text.fontSize ?? 16.0;
+    final height = textStyle.text.height ?? textStyle.lineHeight;
+    index = level % BulletedListIcon.bulletedListIcons.length;
+    size = fontSize * height;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final icon = FlowySvg(
+      BulletedListIcon.bulletedListIcons[index],
+      size: Size.square(size * 0.8),
+    );
+    return Container(
+      width: size,
+      height: size,
+      margin: const EdgeInsets.only(right: 8.0),
+      alignment: Alignment.center,
+      child: icon,
+    );
+  }
+
   int get level {
     var level = 0;
-    var parent = node.parent;
+    var parent = widget.node.parent;
     while (parent != null) {
       if (parent.type == BulletedListBlockKeys.type) {
         level++;
@@ -28,23 +62,5 @@ class BulletedListIcon extends StatelessWidget {
       parent = parent.parent;
     }
     return level;
-  }
-
-  FlowySvg get icon {
-    final index = level % bulletedListIcons.length;
-    return FlowySvg(bulletedListIcons[index]);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final iconPadding = context.read<DocumentPageStyleBloc>().state.iconPadding;
-    return Container(
-      constraints: const BoxConstraints(
-        minWidth: 22,
-        minHeight: 22,
-      ),
-      margin: EdgeInsets.only(top: iconPadding, right: 8.0),
-      child: icon,
-    );
   }
 }

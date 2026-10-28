@@ -1,19 +1,22 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
 import 'package:appflowy/workspace/application/home/home_setting_bloc.dart';
 import 'package:appflowy/workspace/presentation/home/home_stack.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:universal_platform/universal_platform.dart';
+
+import '../notifications/number_red_dot.dart';
 
 class NavigationNotifier with ChangeNotifier {
   NavigationNotifier({required this.navigationItems});
@@ -61,27 +64,59 @@ class FlowyNavigation extends StatelessWidget {
 
   Widget _renderCollapse(BuildContext context) {
     return BlocBuilder<HomeSettingBloc, HomeSettingState>(
-      buildWhen: (p, c) => p.isMenuCollapsed != c.isMenuCollapsed,
+      buildWhen: (p, c) => p.menuStatus != c.menuStatus,
       builder: (context, state) {
-        if (state.isMenuCollapsed) {
-          return RotationTransition(
-            turns: const AlwaysStoppedAnimation(180 / 360),
-            child: FlowyTooltip(
-              richMessage: sidebarTooltipTextSpan(
-                context,
-                LocaleKeys.sideBar_openSidebar.tr(),
+        if (!UniversalPlatform.isWindows &&
+            state.menuStatus == MenuStatus.hidden) {
+          final textSpan = TextSpan(
+            children: [
+              TextSpan(
+                text: '${LocaleKeys.sideBar_openSidebar.tr()}\n',
+                style: context.tooltipTextStyle(),
               ),
-              child: FlowyIconButton(
-                width: 24,
-                hoverColor: Colors.transparent,
-                onPressed: () => context
-                    .read<HomeSettingBloc>()
-                    .add(const HomeSettingEvent.collapseMenu()),
-                iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                icon: FlowySvg(
-                  FlowySvgs.hide_menu_m,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+              TextSpan(
+                text: Platform.isMacOS ? '⌘+.' : 'Ctrl+\\',
+                style: context
+                    .tooltipTextStyle()
+                    ?.copyWith(color: Theme.of(context).hintColor),
+              ),
+            ],
+          );
+          final theme = AppFlowyTheme.of(context);
+          return Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: SizedBox(
+              width: 24,
+              height: 24,
+              child: Stack(
+                children: [
+                  RotationTransition(
+                    turns: const AlwaysStoppedAnimation(180 / 360),
+                    child: FlowyTooltip(
+                      richMessage: textSpan,
+                      child: Listener(
+                        onPointerDown: (event) =>
+                            context.read<HomeSettingBloc>().collapseMenu(),
+                        child: SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: FlowyIconButton(
+                            width: 24,
+                            onPressed: () {},
+                            icon: FlowySvg(
+                              FlowySvgs.double_back_arrow_m,
+                              color: theme.iconColorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: NumberedRedDot.desktop(),
+                  ),
+                ],
               ),
             ),
           );
@@ -149,13 +184,13 @@ class EllipsisNaviItem extends NavigationItem {
   final List<NavigationItem> items;
 
   @override
-  Widget get leftBarItem => FlowyText.medium(
-        '...',
-        fontSize: FontSizes.s16,
-      );
+  String? get viewName => null;
 
   @override
-  Widget tabBarItem(String pluginId) => leftBarItem;
+  Widget get leftBarItem => FlowyText.medium('...', fontSize: FontSizes.s16);
+
+  @override
+  Widget tabBarItem(String pluginId, [bool shortForm = false]) => leftBarItem;
 
   @override
   NavigationCallback get action => (id) {};

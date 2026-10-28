@@ -8,9 +8,11 @@ import 'package:appflowy/shared/feedback_gesture_detector.dart';
 import 'package:appflowy/util/font_family_extension.dart';
 import 'package:appflowy/workspace/application/settings/appearance/base_appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 const kPageStyleLayoutHeight = 52.0;
 
@@ -117,6 +119,7 @@ class _OptionGroup<T> extends StatelessWidget {
           duration: Durations.medium1,
           decoration: selected
               ? ShapeDecoration(
+                  color: const Color(0x141AC3F2),
                   shape: RoundedRectangleBorder(
                     side: const BorderSide(
                       width: 1.50,
@@ -180,7 +183,10 @@ class _FontButton extends StatelessWidget {
                 const HSpace(16.0),
                 FlowyText(LocaleKeys.titleBar_font.tr()),
                 const Spacer(),
-                FlowyText(fontFamilyDisplayName),
+                FlowyText(
+                  fontFamilyDisplayName,
+                  color: context.pageStyleTextColor,
+                ),
                 const HSpace(6.0),
                 const FlowySvg(FlowySvgs.m_page_style_arrow_right_s),
                 const HSpace(12.0),
@@ -193,6 +199,9 @@ class _FontButton extends StatelessWidget {
   }
 
   void _showFontSelector(BuildContext context) {
+    final pageStyleBloc = context.read<DocumentPageStyleBloc>();
+    context.pop();
+
     showMobileBottomSheet(
       context,
       showDragHandle: true,
@@ -200,15 +209,13 @@ class _FontButton extends StatelessWidget {
       showDoneButton: true,
       showHeader: true,
       title: LocaleKeys.titleBar_font.tr(),
-      barrierColor: Colors.transparent,
-      backgroundColor: Theme.of(context).colorScheme.background,
-      isScrollControlled: true,
+      backgroundColor: AFThemeExtension.of(context).background,
       enableDraggableScrollable: true,
       minChildSize: 0.6,
       initialChildSize: 0.61,
       scrollableWidgetBuilder: (_, controller) {
         return BlocProvider.value(
-          value: context.read<DocumentPageStyleBloc>(),
+          value: pageStyleBloc,
           child: BlocBuilder<DocumentPageStyleBloc, DocumentPageStyleState>(
             builder: (context, state) {
               return Expanded(
@@ -219,11 +226,11 @@ class _FontButton extends StatelessWidget {
                     selectedFontFamilyName:
                         state.fontFamily ?? defaultFontFamily,
                     onFontFamilySelected: (fontFamilyName) {
-                      context.read<DocumentPageStyleBloc>().add(
-                            DocumentPageStyleEvent.updateFontFamily(
-                              fontFamilyName,
-                            ),
-                          );
+                      pageStyleBloc.add(
+                        DocumentPageStyleEvent.updateFontFamily(
+                          fontFamilyName,
+                        ),
+                      );
                     },
                   ),
                 ),

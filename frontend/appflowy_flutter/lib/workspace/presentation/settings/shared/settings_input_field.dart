@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-
 import 'package:appflowy/generated/flowy_svgs.g.dart';
 import 'package:appflowy/generated/locale_keys.g.dart';
+import 'package:appflowy/workspace/presentation/settings/pages/account/password/password_suffix_icon.dart';
+import 'package:appflowy_ui/appflowy_ui.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme_extension.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
-import 'package:flowy_infra_ui/widget/flowy_tooltip.dart';
+import 'package:flutter/material.dart';
 
 /// This is used to describe a settings input field
 ///
@@ -27,6 +27,7 @@ class SettingsInputField extends StatefulWidget {
     this.onSave,
     this.onCancel,
     this.hideActions = false,
+    this.onChanged,
   });
 
   final String? label;
@@ -47,14 +48,16 @@ class SettingsInputField extends StatefulWidget {
   ///
   final bool hideActions;
 
-  final Function(String)? onSave;
+  final void Function(String)? onSave;
 
   /// The action to be performed when the cancel button is pressed.
   ///
   /// If null the button will **NOT** be disabled! Instead it will
   /// reset the input to the original value.
   ///
-  final Function()? onCancel;
+  final void Function()? onCancel;
+
+  final void Function(String)? onChanged;
 
   @override
   State<SettingsInputField> createState() => _SettingsInputFieldState();
@@ -100,34 +103,26 @@ class _SettingsInputFieldState extends State<SettingsInputField> {
             ],
           ],
         ),
-        const VSpace(8),
-        SizedBox(
-          height: 48,
-          child: FlowyTextField(
-            focusNode: focusNode,
-            hintText: widget.placeholder,
-            controller: controller,
-            autoFocus: false,
-            obscureText: obscureText,
-            isDense: false,
-            suffixIconConstraints:
-                BoxConstraints.tight(const Size(23 + 18, 24)),
-            suffixIcon: !widget.obscureText
-                ? null
-                : GestureDetector(
-                    onTap: () => setState(() => obscureText = !obscureText),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 18),
-                      child: FlowySvg(
-                        obscureText ? FlowySvgs.show_m : FlowySvgs.hide_m,
-                        size: const Size(12, 15),
-                        color: Theme.of(context).colorScheme.outline,
-                      ),
-                    ),
-                  ),
-            onSubmitted: widget.onSave,
-            onChanged: (_) => setState(() {}),
-          ),
+        if (widget.label?.isNotEmpty ?? false || widget.tooltip != null)
+          const VSpace(8),
+        AFTextField(
+          controller: controller,
+          focusNode: focusNode,
+          hintText: widget.placeholder,
+          obscureText: obscureText,
+          onSubmitted: widget.onSave,
+          onChanged: (_) {
+            widget.onChanged?.call(controller.text);
+            setState(() {});
+          },
+          suffixIconBuilder: (context, isObscured) => widget.obscureText
+              ? PasswordSuffixIcon(
+                  isObscured: isObscured,
+                  onTap: () {
+                    setState(() => obscureText = !obscureText);
+                  },
+                )
+              : null,
         ),
         if (!widget.hideActions &&
             ((widget.value == null && controller.text.isNotEmpty) ||

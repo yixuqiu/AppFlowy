@@ -11,17 +11,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'menu_user_bloc.freezed.dart';
 
 class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
-  MenuUserBloc(this.userProfile)
+  MenuUserBloc(this.userProfile, this.workspaceId)
       : _userListener = UserListener(userProfile: userProfile),
-        _userWorkspaceListener = UserWorkspaceListener(),
+        _userWorkspaceListener = FolderListener(
+          workspaceId: workspaceId,
+        ),
         _userService = UserBackendService(userId: userProfile.id),
         super(MenuUserState.initial(userProfile)) {
     _dispatch();
   }
 
+  final String workspaceId;
   final UserBackendService _userService;
   final UserListener _userListener;
-  final UserWorkspaceListener _userWorkspaceListener;
+  final FolderListener _userWorkspaceListener;
   final UserProfilePB userProfile;
 
   @override

@@ -10,7 +10,7 @@ enum FlowyAppBarLeadingType {
   Widget getWidget(VoidCallback? onTap) {
     switch (this) {
       case FlowyAppBarLeadingType.back:
-        return AppBarBackButton(onTap: onTap);
+        return AppBarImmersiveBackButton(onTap: onTap);
       case FlowyAppBarLeadingType.close:
         return AppBarCloseButton(onTap: onTap);
       case FlowyAppBarLeadingType.cancel:
@@ -37,6 +37,7 @@ class FlowyAppBar extends AppBar {
     Widget? title,
     String? titleText,
     FlowyAppBarLeadingType leadingType = FlowyAppBarLeadingType.back,
+    double? leadingWidth,
     Widget? leading,
     super.centerTitle,
     VoidCallback? onTapLeading,
@@ -52,7 +53,7 @@ class FlowyAppBar extends AppBar {
           titleSpacing: 0,
           elevation: 0,
           leading: leading ?? leadingType.getWidget(onTapLeading),
-          leadingWidth: leadingType.width,
+          leadingWidth: leadingWidth ?? leadingType.width,
           toolbarHeight: 44.0,
           bottom: showDivider
               ? const PreferredSize(

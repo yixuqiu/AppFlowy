@@ -1,3 +1,4 @@
+import 'package:appflowy/plugins/ai_chat/chat.dart';
 import 'package:appflowy/plugins/database/calendar/calendar.dart';
 import 'package:appflowy/plugins/database/board/board.dart';
 import 'package:appflowy/plugins/database/grid/grid.dart';
@@ -16,6 +17,8 @@ class PluginLoadTask extends LaunchTask {
 
   @override
   Future<void> initialize(LaunchContext context) async {
+    await super.initialize(context);
+
     registerPlugin(builder: BlankPluginBuilder(), config: BlankPluginConfig());
     registerPlugin(builder: TrashPluginBuilder(), config: TrashPluginConfig());
     registerPlugin(builder: DocumentPluginBuilder());
@@ -29,8 +32,13 @@ class PluginLoadTask extends LaunchTask {
       builder: DatabaseDocumentPluginBuilder(),
       config: DatabaseDocumentPluginConfig(),
     );
+    registerPlugin(
+      builder: DatabaseDocumentPluginBuilder(),
+      config: DatabaseDocumentPluginConfig(),
+    );
+    registerPlugin(
+      builder: AIChatPluginBuilder(),
+      config: AIChatPluginConfig(),
+    );
   }
-
-  @override
-  Future<void> dispose() async {}
 }

@@ -9,11 +9,11 @@ class DefaultAppearanceSettings {
   static const kDefaultThemeName = "Default";
   static const kDefaultTheme = BuiltInTheme.defaultTheme;
 
-  static Color getDefaultDocumentCursorColor(BuildContext context) {
+  static Color getDefaultCursorColor(BuildContext context) {
     return Theme.of(context).colorScheme.primary;
   }
 
-  static Color getDefaultDocumentSelectionColor(BuildContext context) {
-    return Theme.of(context).colorScheme.primary.withOpacity(0.2);
+  static Color getDefaultSelectionColor(BuildContext context) {
+    return Theme.of(context).colorScheme.primary.withValues(alpha: 0.2);
   }
 }
